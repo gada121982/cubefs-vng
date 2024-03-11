@@ -515,6 +515,16 @@ func (s *DataNode) handleWritePacket(p *repl.Packet) {
 		err = storage.BrokenDiskError
 		return
 	}
+
+	vol, ok := s.volInfo.Load(partition.volumeID)
+	if ok {
+		volStat := vol.(*proto.VolSpaceInfo)
+		if volStat.UsedSize >= volStat.TotalSize { // TotalSize is volume capacity
+			err = storage.NoSpaceError
+			return
+		}
+	}
+
 	store := partition.ExtentStore()
 	if p.ExtentType == proto.TinyExtentType {
 		if !shallDegrade {
