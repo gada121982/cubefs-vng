@@ -4440,6 +4440,35 @@ func (m *Server) listVols(w http.ResponseWriter, r *http.Request) {
 	sendOkReply(w, r, newSuccessHTTPReply(volsInfo))
 }
 
+func (m *Server) listVolsSpace(w http.ResponseWriter, r *http.Request) {
+	var (
+		err           error
+		volNames      []string
+		vol           *Vol
+		volsSpaceInfo []*proto.VolSpaceInfo
+	)
+	metric := exporter.NewTPCnt(apiToMetricsName(proto.AdminListVolsSpace))
+	defer func() {
+		doStatAndMetric(proto.AdminListVolsSpace, metric, err, nil)
+	}()
+
+	r.ParseForm()
+	query := r.FormValue(VolNamesKey)
+	volNames = strings.Split(query, ",")
+
+	volsSpaceInfo = make([]*proto.VolSpaceInfo, 0)
+	for _, name := range volNames {
+		vol, err = m.cluster.getVol(name)
+		if err != nil {
+			continue
+		}
+		stat := volStat(vol, false)
+		volSpaceInfo := proto.NewVolSpaceInfo(vol.Name, stat.TotalSize, stat.UsedSize)
+		volsSpaceInfo = append(volsSpaceInfo, volSpaceInfo)
+	}
+	sendOkReply(w, r, newSuccessHTTPReply(volsSpaceInfo))
+}
+
 func (m *Server) changeMasterLeader(w http.ResponseWriter, r *http.Request) {
 	var (
 		err error
