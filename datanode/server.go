@@ -161,6 +161,8 @@ type DataNode struct {
 	diskWriteFlow           int
 	clusterUuid             string
 	clusterUuidEnable       bool
+
+	volInfo sync.Map
 }
 
 func NewServer() *DataNode {
@@ -846,6 +848,7 @@ func (s *DataNode) shallDegrade() bool {
 
 func (s *DataNode) scheduleTask() {
 	go s.startUpdateNodeInfo()
+	go s.startUpdateVolInfo()
 	s.scheduleToCheckLackPartitions()
 }
 
