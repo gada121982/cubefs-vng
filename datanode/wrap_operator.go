@@ -520,7 +520,7 @@ func (s *DataNode) handleWritePacket(p *repl.Packet) {
 	if ok {
 		volStat := vol.(*proto.VolSpaceInfo)
 		if volStat.UsedSize >= volStat.TotalSize { // TotalSize is volume capacity
-			err = storage.NoSpaceError
+			err = nil
 			return
 		}
 	}
