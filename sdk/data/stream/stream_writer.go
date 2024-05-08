@@ -192,14 +192,19 @@ func (s *Streamer) server() {
 			return
 		case <-t.C:
 			s.traverse()
+			s.client.streamerLock.Lock()
 			if s.refcnt <= 0 {
-
-				s.client.streamerLock.Lock()
 				if s.idle >= streamWriterIdleTimeoutPeriod && len(s.request) == 0 {
 					if s.client.disableMetaCache || !s.needBCache {
-						delete(s.client.streamers, s.inode)
-						if s.client.evictIcache != nil {
-							s.client.evictIcache(s.inode)
+						// get current stream in map
+						current_s, _ := s.client.streamers[s.inode]
+						// one stream maybe has multi server coroutine
+						// when the stream's residual server coroutine exits, others stream maybe deleted
+						if current_s == s {
+							delete(s.client.streamers, s.inode)
+							if s.client.evictIcache != nil {
+								s.client.evictIcache(s.inode)
+							}
 						}
 					}
 
@@ -211,10 +216,9 @@ func (s *Streamer) server() {
 					log.LogDebugf("done server: no requests for a long time, ino(%v)", s.inode)
 					return
 				}
-				s.client.streamerLock.Unlock()
-
 				s.idle++
 			}
+			s.client.streamerLock.Unlock()
 		}
 	}
 }
@@ -440,7 +444,7 @@ func (s *Streamer) doWrite(data []byte, offset, size int, direct bool) (total in
 
 	// Small files are usually written in a single write, so use tiny extent
 	// store only for the first write operation.
-	if offset > 0 || offset+size > s.tinySizeLimit() {
+	if offset+size > s.tinySizeLimit() {
 		storeMode = proto.NormalExtentType
 	} else {
 		storeMode = proto.TinyExtentType

@@ -119,6 +119,7 @@ const (
 	dpDiscardKey               = "dpDiscard"
 	ignoreDiscardKey           = "ignoreDiscard"
 	TrashIntervalKey           = "trashInterval"
+	VolNamesKey                = "volNames"
 )
 
 const (

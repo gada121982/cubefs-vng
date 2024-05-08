@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/cubefs/cubefs/proto"
 	"github.com/cubefs/cubefs/util"
@@ -527,6 +528,20 @@ func (api *AdminAPI) ListVols(keywords string) (volsInfo []*proto.VolInfo, err e
 		return
 	}
 	volsInfo = make([]*proto.VolInfo, 0)
+	if err = json.Unmarshal(buf, &volsInfo); err != nil {
+		return
+	}
+	return
+}
+
+func (api *AdminAPI) ListVolsByNames(names []string) (volsInfo []*proto.VolSpaceInfo, err error) {
+	var request = newAPIRequest(http.MethodGet, proto.AdminListVolsSpace)
+	request.addParam("volNames", strings.Join(names, ","))
+	var buf []byte
+	if buf, err = api.mc.serveRequest(request); err != nil {
+		return
+	}
+	volsInfo = make([]*proto.VolSpaceInfo, 0)
 	if err = json.Unmarshal(buf, &volsInfo); err != nil {
 		return
 	}
