@@ -515,6 +515,16 @@ func (s *DataNode) handleWritePacket(p *repl.Packet) {
 		err = storage.BrokenDiskError
 		return
 	}
+
+	vol, ok := s.volInfo.Load(partition.volumeID)
+	if ok {
+		volStat := vol.(*proto.VolSpaceInfo)
+		if volStat.UsedSize >= volStat.TotalSize { // TotalSize is volume capacity
+			err = storage.NoSpaceError
+			return
+		}
+	}
+
 	store := partition.ExtentStore()
 	if p.ExtentType == proto.TinyExtentType {
 		if !shallDegrade {
@@ -1179,7 +1189,7 @@ func (s *DataNode) handlePacketToRemoveDataPartitionRaftMember(p *repl.Packet) {
 
 	p.PartitionID = req.PartitionId
 
-	if !dp.IsExsitReplica(req.RemovePeer.Addr) {
+	if !dp.IsExsitReplica(req.RemovePeer.Addr) && !req.Force {
 		log.LogInfof("action[handlePacketToRemoveDataPartitionRaftMember] receive MasterCommand:  req %v[%v] "+
 			"RemoveRaftPeer(%v) has not exsit", p.GetReqID(), string(reqData), req.RemovePeer.Addr)
 		return

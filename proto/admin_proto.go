@@ -52,6 +52,7 @@ const (
 	AdminCreateMetaPartition                  = "/metaPartition/create"
 	AdminSetMetaNodeThreshold                 = "/threshold/set"
 	AdminListVols                             = "/vol/list"
+	AdminListVolsSpace                        = "/vol/listSpace"
 	AdminSetNodeInfo                          = "/admin/setNodeInfo"
 	AdminGetNodeInfo                          = "/admin/getNodeInfo"
 	AdminGetAllNodeSetGrpInfo                 = "/admin/getDomainInfo"
@@ -934,6 +935,20 @@ func NewVolInfo(name, owner string, createTime int64, status uint8, totalSize, u
 		TotalSize:             totalSize,
 		UsedSize:              usedSize,
 		DpReadOnlyWhenVolFull: dpReadOnlyWhenVolFull,
+	}
+}
+
+type VolSpaceInfo struct {
+	Name      string
+	TotalSize uint64
+	UsedSize  uint64
+}
+
+func NewVolSpaceInfo(name string, totalSize, usedSize uint64) *VolSpaceInfo {
+	return &VolSpaceInfo{
+		Name:      name,
+		TotalSize: totalSize,
+		UsedSize:  usedSize,
 	}
 }
 
