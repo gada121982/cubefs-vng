@@ -346,9 +346,9 @@ func (o *ObjectNode) authUserMiddleware(next http.Handler) http.Handler {
 				_ = InternalErrorCode(errors.New("user not found")).ServeResponse(w, r)
 				return
 			}
-			log.LogErrorf("authUserMiddleware user: %s", userInfo.UserID, UserPermission[userInfo.UserID])
+			log.LogErrorf("authUserMiddleware user: %s  %t", userInfo.UserID, UserPermission[userInfo.UserID])
 			
-			if false {
+			if true {
 				_ = InternalErrorCode(errAuthUser).ServeResponse(w, r)
 				return
 			}
