@@ -580,6 +580,7 @@ func (o *ObjectNode) registerApiRouters(router *mux.Router) {
 	}
 
 	for _, r := range bucketRouters {
+		r.Use(o.authUserMiddleware)
 		registerBucketHttpHeadRouters(r)
 		registerBucketHttpGetRouters(r)
 		registerBucketHttpPostRouters(r)
@@ -593,7 +594,6 @@ func (o *ObjectNode) registerApiRouters(router *mux.Router) {
 	router.NewRoute().Name(ActionToUniqueRouteName(proto.OSSListBucketsAction)).
 		Methods(http.MethodGet).
 		HandlerFunc(o.listBucketsHandler)
-	router.Use(o.authUserMiddleware)
 	// Unsupported operation
 	router.NotFoundHandler = http.HandlerFunc(o.unsupportedOperationHandler)
 }
