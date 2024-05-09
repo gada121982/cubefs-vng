@@ -325,6 +325,36 @@ func (o *ObjectNode) corsMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+var UserPermission = map[string]bool{
+	"testuser": true,
+	"testuser2": false,
+	"testuser3": false,
+}
+
+func (o *ObjectNode) authUserMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(
+		func (w http.ResponseWriter, r *http.Request)  {
+			var err error
+			var userInfo *proto.UserInfo
+			fmt.Println("Handling_auth_user_middleware")
+			auth := parseRequestAuthInfo(r)
+			if userInfo, err = o.getUserInfoByAccessKeyV2(auth.accessKey); err != nil {
+				log.LogErrorf("authUserMiddleware: not found user")
+				_ = AccessDenied.ServeResponse(w, r)
+				return
+			}
+			fmt.Println("authUserMiddleware userInfo", userInfo)
+			if !UserPermission[userInfo.UserID] {
+				log.LogErrorf("authUserMiddleware: user do not have permission")
+				_ = AccessDenied.ServeResponse(w, r)
+				return				
+			}
+			next.ServeHTTP(w, r)
+			return
+		},
+	)
+}
+
 func isMatchAndSetupCORSHeader(cors *CORSConfiguration, writer http.ResponseWriter, request *http.Request, isPreflight bool) (match bool) {
 	origin := request.Header.Get(Origin)
 	reqHeaders := request.Header.Get(HeaderNameAccessControlRequestHeaders)
