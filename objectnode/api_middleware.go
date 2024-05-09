@@ -334,7 +334,6 @@ var UserPermission = map[string]bool{
 
 func (o *ObjectNode) authUserMiddleware(next http.Handler) http.Handler {
 	var errAuthUser = errors.New("You do not have permission to access this api")
-
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			auth := parseRequestAuthInfo(r)		
