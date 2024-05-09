@@ -331,15 +331,23 @@ var UserPermission = map[string]bool{
 	"testuser2": false,
 	"testuser3": false,
 }
+var errAuthUser = errors.New("You do not have permission to access this api")
 
 func (o *ObjectNode) authUserMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			routeName := mux.CurrentRoute(r).GetName()
-			log.LogInfof("routeName %s", routeName)
-			err := errors.New("new error")
+			log.LogInfof("authUserMiddleware %s", routeName)
+			auth := parseRequestAuthInfo(r)
+		
+			userInfo, err := o.getUserInfoByAccessKeyV2(auth.accessKey);
 			if err != nil {
-				_ = InternalErrorCode(err).ServeResponse(w, r)
+				log.LogErrorf("authUserMiddleware user not found: %+v", userInfo)
+				_ = InternalErrorCode(errors.New("user not found")).ServeResponse(w, r)
+				return
+			}
+			if !UserPermission[userInfo.UserID] {
+				_ = InternalErrorCode(errAuthUser).ServeResponse(w, r)
 				return
 			}
 		})
