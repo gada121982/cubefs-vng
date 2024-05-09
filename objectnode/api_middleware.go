@@ -333,7 +333,6 @@ var UserPermission = map[string]bool{
 }
 
 func (o *ObjectNode) authUserMiddleware(next http.Handler) http.Handler {
-	var errAuthUser = errors.New("You do not have permission to access this api")
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			auth := parseRequestAuthInfo(r)		
@@ -344,7 +343,7 @@ func (o *ObjectNode) authUserMiddleware(next http.Handler) http.Handler {
 			}
 			log.LogErrorf("authUserMiddleware user: %s  %t", userInfo.UserID, UserPermission[userInfo.UserID])
 			if !UserPermission[userInfo.UserID] {
-				_ = InternalErrorCode(errAuthUser).ServeResponse(w, r)
+				_ = AccessDenied.ServeResponse(w, r)
 				return
 			}
 			next.ServeHTTP(w, r)
