@@ -348,7 +348,7 @@ func (o *ObjectNode) authUserMiddleware(next http.Handler) http.Handler {
 			}
 			log.LogErrorf("authUserMiddleware user: %s  %t", userInfo.UserID, UserPermission[userInfo.UserID])
 			
-			if true {
+			if !UserPermission[userInfo.UserID] {
 				_ = InternalErrorCode(errAuthUser).ServeResponse(w, r)
 				return
 			}
