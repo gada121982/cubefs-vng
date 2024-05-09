@@ -337,21 +337,18 @@ func (o *ObjectNode) authUserMiddleware(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			routeName := mux.CurrentRoute(r).GetName()
-			log.LogInfof("authUserMiddleware %s", routeName)
-			auth := parseRequestAuthInfo(r)
-		
+			auth := parseRequestAuthInfo(r)		
 			userInfo, err := o.getUserInfoByAccessKeyV2(auth.accessKey);
 			if err != nil {
 				_ = InternalErrorCode(errors.New("user not found")).ServeResponse(w, r)
 				return
 			}
 			log.LogErrorf("authUserMiddleware user: %s  %t", userInfo.UserID, UserPermission[userInfo.UserID])
-			
-			if !UserPermission[userInfo.UserID] {
+			if UserPermission[userInfo.UserID] {
 				_ = InternalErrorCode(errAuthUser).ServeResponse(w, r)
 				return
 			}
+			next.ServeHTTP(w, r)
 		})
 }
 
