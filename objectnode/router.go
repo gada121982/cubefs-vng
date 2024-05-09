@@ -580,13 +580,13 @@ func (o *ObjectNode) registerApiRouters(router *mux.Router) {
 	}
 
 	for _, r := range bucketRouters {
-		r.Use(o.authUserMiddleware)
 		registerBucketHttpHeadRouters(r)
 		registerBucketHttpGetRouters(r)
 		registerBucketHttpPostRouters(r)
 		registerBucketHttpPutRouters(r)
 		registerBucketHttpDeleteRouters(r)
 		registerBucketHttpOptionsRouters(r)
+		r.Use(o.authUserMiddleware)
 	}
 
 	// List buckets

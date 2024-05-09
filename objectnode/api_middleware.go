@@ -335,6 +335,8 @@ var UserPermission = map[string]bool{
 func (o *ObjectNode) authUserMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
+			routeName := mux.CurrentRoute(r).GetName()
+			fmt.Println("routeName: ", routeName)
 			err := errors.New("new error")
 			if err != nil {
 				_ = InternalErrorCode(err).ServeResponse(w, r)
