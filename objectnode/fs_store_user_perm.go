@@ -2,6 +2,7 @@ package objectnode
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -45,6 +46,7 @@ func NewUserPermissionStore() (UserPermissionStore, error) {
 	store := &userPermissionStore{
 		req,
 	}
+	fmt.Printf("userPermission %+v", store)
 	go store.scheduleUpdate()
 
 	return store, nil
@@ -82,6 +84,7 @@ func (s *userPermissionStore) scheduleUpdate() {
 	for {
 		select {
 		case <-ticker.C:
+			fmt.Printf("start sync")
 			s.fetchUserPermission()
 		}
 	}
