@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -32,12 +31,11 @@ type userPermissionStore struct {
 }
 
 func NewUserPermissionStore() (UserPermissionStore, error) {
-	req, err := http.NewRequest(http.MethodGet, "http://10.237.96.202:3003/api/acl/list", nil)
+	req, err := http.NewRequest(http.MethodGet, `http://10.237.96.202:3003/api/acl/list?type=1`, nil)
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Add("Authorization", "Bearer "+token)
-	req.URL.Query().Add("type", strconv.Itoa(UserPermissionType))
 
 	store := &userPermissionStore{
 		req,
