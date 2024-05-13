@@ -56,17 +56,17 @@ func (s *userPermissionStore) fetchUserPermission() error {
 	var data []userPermission
 	resp, err := http.DefaultClient.Do(s.req)
 	if err != nil {
-		log.Println(err)
+		log.Println("error 1", err)
 		return err
 	}
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Println(err)
+		log.Println("error 2", err)
 		return err
 	}
 
 	if err := json.Unmarshal(body, &data); err != nil {
-		log.Println(err)
+		log.Println("error 3", err)
 		return err
 	}
 	log.Printf("data %+v", data)
