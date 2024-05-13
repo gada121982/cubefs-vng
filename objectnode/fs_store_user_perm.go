@@ -2,8 +2,8 @@ package objectnode
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"time"
@@ -59,16 +59,15 @@ func (s *userPermissionStore) fetchUserPermission() error {
 		log.Println("error 1", err)
 		return err
 	}
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Println("error 2", err)
-		return err
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		fmt.Printf("resp %+v \n", resp)
+		return errors.New("sync user permission failed")
 	}
 
-	fmt.Println("resp", resp)
-
-	if err := json.Unmarshal(body, &data); err != nil {
-		log.Println("error 3", err)
+	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+		log.Println("error 2", err)
 		return err
 	}
 	log.Printf("data %+v", data)
@@ -87,7 +86,9 @@ func (s *userPermissionStore) scheduleUpdate() {
 		select {
 		case <-ticker.C:
 			fmt.Println("start sync")
-			s.fetchUserPermission()
+			if err := s.fetchUserPermission(); err != nil {
+				log.Println("err", err)
+			}
 		}
 	}
 }
