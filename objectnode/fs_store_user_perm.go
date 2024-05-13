@@ -72,6 +72,7 @@ func (s *userPermissionStore) fetchUserPermission() error {
 
 func (s *userPermissionStore) hasPermission(userId string) bool {
 	p, ok := s.permission.Load(userId)
+	log.Println("hasPermission", p, ok)
 	if !ok {
 		return false
 	}
