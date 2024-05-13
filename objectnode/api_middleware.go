@@ -343,7 +343,7 @@ func (o *ObjectNode) authUserMiddleware(next http.Handler) http.Handler {
 				return
 			}
 			log.LogErrorf("authUserMiddleware user: %s  %t", userInfo.UserID, o.userPermissionStore.hasPermission(userInfo.UserID))
-			if o.userPermissionStore.hasPermission(userInfo.UserID) {
+			if !o.userPermissionStore.hasPermission(userInfo.UserID) {
 				_ = AccessDenied.ServeResponse(w, r)
 				return
 			}
