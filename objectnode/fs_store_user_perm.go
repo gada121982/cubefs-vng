@@ -58,7 +58,7 @@ func (s *userPermissionStore) fetchUserPermission() error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		fmt.Printf("resp %+v \n", resp)
+		log.Printf("resp %+v \n", resp)
 		return errors.New("sync user permission failed")
 	}
 
