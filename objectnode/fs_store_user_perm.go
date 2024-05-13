@@ -11,12 +11,13 @@ import (
 const (
 	updateUserPermInterval = time.Second * 5
 	userPermLoaderNum      = 1
+	token                  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NWVlYjljMWE3Mzg5OTgzNWZjNDk1YzUiLCJuYW1lIjoiaGFpbnY0IiwiaXNMb2ciOmZhbHNlLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3MTM3NjY2NjksImV4cCI6MTcxMzg1MzA2OX0.eSO-um58kj3gCJI8Iz_CzZSU18-QuDMh9O6w8C6H1V0"
 )
 
-type Permissionx int
+type Permissionx string
 
 var (
-	UserPermission Permissionx = 1
+	UserPermission Permissionx = "1"
 )
 
 type userPermission struct {
@@ -30,15 +31,28 @@ type UserPermissionStore interface {
 }
 
 type userPermissionStore struct {
+	req *http.Request
 }
 
-func NewUserPermissionStore() UserPermissionStore {
-	return &userPermissionStore{}
+func NewUserPermissionStore() (UserPermissionStore, error) {
+	req, err := http.NewRequest(http.MethodGet, "http://10.237.96.202:3003/api/acl/list", nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Authorization", "Bearer "+token)
+	req.URL.Query().Add("type", string(UserPermission))
+
+	store := &userPermissionStore{
+		req,
+	}
+	go store.scheduleUpdate()
+
+	return store, nil
 }
 
 func (s *userPermissionStore) fetchUserPermission() error {
 	var data []userPermission
-	resp, err := http.Get("http://10.237.96.202:3003/api/acl/list")
+	resp, err := http.DefaultClient.Do(s.req)
 	if err != nil {
 		log.Println(err)
 		return err

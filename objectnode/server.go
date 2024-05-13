@@ -217,9 +217,10 @@ func (o *ObjectNode) loadConfig(cfg *config.Config) (err error) {
 	o.mc = master.NewMasterClient(masters, false)
 	o.vm = NewVolumeManager(masters, strict)
 	o.userStore = NewUserInfoStore(masters, strict)
-	o.userPermissionStore = NewUserPermissionStore()
-
-	go o.userPermissionStore.scheduleUpdate()
+	o.userPermissionStore, err = NewUserPermissionStore()
+	if err != nil {
+		return
+	}
 
 	// parse inode cache
 	cacheEnable := cfg.GetBool(configObjMetaCache)
