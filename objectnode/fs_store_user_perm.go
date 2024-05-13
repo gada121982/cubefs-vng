@@ -65,6 +65,8 @@ func (s *userPermissionStore) fetchUserPermission() error {
 		return err
 	}
 
+	fmt.Println("resp", resp)
+
 	if err := json.Unmarshal(body, &data); err != nil {
 		log.Println("error 3", err)
 		return err
