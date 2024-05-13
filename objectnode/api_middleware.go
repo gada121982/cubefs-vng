@@ -342,8 +342,8 @@ func (o *ObjectNode) authUserMiddleware(next http.Handler) http.Handler {
 				_ = InternalErrorCode(errors.New("user not found")).ServeResponse(w, r)
 				return
 			}
-			log.LogErrorf("authUserMiddleware user: %s  %t", userInfo.UserID, o.userPermissionStore.hasPermission(userInfo.UserID))
 			if !o.userPermissionStore.hasPermission(userInfo.UserID) {
+				log.LogInfof("authUserMiddleware deny user: %s  %t", userInfo.UserID, o.userPermissionStore.hasPermission(userInfo.UserID))
 				_ = AccessDenied.ServeResponse(w, r)
 				return
 			}

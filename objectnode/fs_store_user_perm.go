@@ -3,12 +3,12 @@ package objectnode
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
 	"sync"
 	"time"
 
 	"github.com/cubefs/cubefs/util/config"
+	"github.com/cubefs/cubefs/util/log"
 )
 
 type Permissionx int
@@ -80,7 +80,6 @@ func (s *userPermissionStore) fetchUserPermission() error {
 
 func (s *userPermissionStore) hasPermission(userId string) bool {
 	p, ok := s.permission.Load(userId)
-	log.Println("hasPermission", p, ok)
 	if !ok {
 		return false
 	}
@@ -97,7 +96,7 @@ func (s *userPermissionStore) scheduleUpdate() {
 		select {
 		case <-ticker.C:
 			if err := s.fetchUserPermission(); err != nil {
-				log.Println("err", err) // TODO: add logging library here
+				log.LogInfof("userPermissionStore: fetch user permission error %s", err.Error())
 			}
 		}
 	}
