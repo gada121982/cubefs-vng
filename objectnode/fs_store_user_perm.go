@@ -84,7 +84,7 @@ func (s *userPermissionStore) scheduleUpdate() {
 	for {
 		select {
 		case <-ticker.C:
-			fmt.Printf("start sync")
+			fmt.Println("start sync")
 			s.fetchUserPermission()
 		}
 	}
