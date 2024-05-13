@@ -217,7 +217,7 @@ func (o *ObjectNode) loadConfig(cfg *config.Config) (err error) {
 	o.mc = master.NewMasterClient(masters, false)
 	o.vm = NewVolumeManager(masters, strict)
 	o.userStore = NewUserInfoStore(masters, strict)
-	o.userPermissionStore, err = NewUserPermissionStore()
+	o.userPermissionStore, err = NewUserPermissionStore(cfg)
 	if err != nil {
 		return
 	}

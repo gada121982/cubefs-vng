@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/cubefs/cubefs/util/config"
 )
 
 type Permissionx int
@@ -16,7 +18,9 @@ var userNormalPermission Permissionx = 1
 const (
 	UserPermissionType     = 1
 	updateUserPermInterval = time.Second * 5
-	token                  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NWVlYjljMWE3Mzg5OTgzNWZjNDk1YzUiLCJuYW1lIjoiaGFpbnY0IiwiaXNMb2ciOmZhbHNlLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3MTM3NjY2NjksImV4cCI6MTcxMzg1MzA2OX0.eSO-um58kj3gCJI8Iz_CzZSU18-QuDMh9O6w8C6H1V0"
+
+	configAclServiceEndpoint = "aclServiceEndpoint"
+	configAclServiceToken    = "aclServiceToken"
 )
 
 type userPermission struct {
@@ -34,16 +38,20 @@ type userPermissionStore struct {
 	permission sync.Map
 }
 
-// TODO: get from config file
-func NewUserPermissionStore() (UserPermissionStore, error) {
-	req, err := http.NewRequest(http.MethodGet, `http://10.237.96.202:3003/api/acl/list?type=1`, nil)
+func NewUserPermissionStore(cfg *config.Config) (UserPermissionStore, error) {
+	endpoint := cfg.GetString(configAclServiceEndpoint)
+	token := cfg.GetString(configAclServiceToken)
+	if endpoint == "" || token == "" {
+		return nil, errors.New("missing acl service configuration")
+	}
+	req, err := http.NewRequest(http.MethodGet, endpoint+`/api/acl/list?type=1`, nil)
 	if err != nil {
 		return nil, err
 	}
-	// TODO: get token from config file
 	req.Header.Add("Authorization", "Bearer "+token)
 	store := new(userPermissionStore)
 	store.req = req
+
 	go store.scheduleUpdate()
 
 	return store, nil
