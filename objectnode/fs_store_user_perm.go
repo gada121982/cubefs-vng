@@ -6,24 +6,20 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 )
 
 const (
+	UserPermissionType     = 1
 	updateUserPermInterval = time.Second * 5
 	userPermLoaderNum      = 1
 	token                  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NWVlYjljMWE3Mzg5OTgzNWZjNDk1YzUiLCJuYW1lIjoiaGFpbnY0IiwiaXNMb2ciOmZhbHNlLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3MTM3NjY2NjksImV4cCI6MTcxMzg1MzA2OX0.eSO-um58kj3gCJI8Iz_CzZSU18-QuDMh9O6w8C6H1V0"
 )
 
-type Permissionx string
-
-var (
-	UserPermission Permissionx = "1"
-)
-
 type userPermission struct {
-	UserId     string      `json:"user_id"`
-	Permission Permissionx `json:"permission"`
+	UserId     string `json:"user_id"`
+	Permission int    `json:"permission"`
 }
 
 type UserPermissionStore interface {
@@ -41,7 +37,7 @@ func NewUserPermissionStore() (UserPermissionStore, error) {
 		return nil, err
 	}
 	req.Header.Add("Authorization", "Bearer "+token)
-	req.URL.Query().Add("type", string(UserPermission))
+	req.URL.Query().Add("type", strconv.Itoa(UserPermissionType))
 
 	store := &userPermissionStore{
 		req,
