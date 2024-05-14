@@ -132,16 +132,17 @@ var (
 )
 
 type ObjectNode struct {
-	domains    []string
-	wildcards  Wildcards
-	listen     string
-	region     string
-	httpServer *http.Server
-	vm         *VolumeManager
-	mc         *master.MasterClient
-	state      uint32
-	wg         sync.WaitGroup
-	userStore  UserInfoStore
+	domains             []string
+	wildcards           Wildcards
+	listen              string
+	region              string
+	httpServer          *http.Server
+	vm                  *VolumeManager
+	mc                  *master.MasterClient
+	state               uint32
+	wg                  sync.WaitGroup
+	userStore           UserInfoStore
+	userPermissionStore UserPermissionStore
 
 	signatureIgnoredActions proto.Actions // signature ignored actions
 	disabledActions         proto.Actions // disabled actions
@@ -216,6 +217,10 @@ func (o *ObjectNode) loadConfig(cfg *config.Config) (err error) {
 	o.mc = master.NewMasterClient(masters, false)
 	o.vm = NewVolumeManager(masters, strict)
 	o.userStore = NewUserInfoStore(masters, strict)
+	o.userPermissionStore, err = NewUserPermissionStore(cfg)
+	if err != nil {
+		return
+	}
 
 	// parse inode cache
 	cacheEnable := cfg.GetBool(configObjMetaCache)

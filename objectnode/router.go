@@ -464,7 +464,9 @@ func (o *ObjectNode) registerApiRouters(router *mux.Router) {
 
 		// Create bucket
 		// API reference: https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html
-		r.NewRoute().Name(ActionToUniqueRouteName(proto.OSSCreateBucketAction)).
+		mbRoute := r.PathPrefix("/").Subrouter()
+		mbRoute.Use(o.authUserMiddleware)
+		mbRoute.NewRoute().Name(ActionToUniqueRouteName(proto.OSSCreateBucketAction)).
 			Methods(http.MethodPut).
 			HandlerFunc(o.createBucketHandler)
 	}
@@ -565,7 +567,9 @@ func (o *ObjectNode) registerApiRouters(router *mux.Router) {
 
 		// Delete bucket
 		// API reference: https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucket.html
-		r.NewRoute().Name(ActionToUniqueRouteName(proto.OSSDeleteBucketAction)).
+		rbRouter := r.PathPrefix("/").Subrouter()
+		rbRouter.Use(o.authUserMiddleware)
+		rbRouter.NewRoute().Name(ActionToUniqueRouteName(proto.OSSDeleteBucketAction)).
 			Methods(http.MethodDelete).
 			HandlerFunc(o.deleteBucketHandler)
 

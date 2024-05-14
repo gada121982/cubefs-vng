@@ -15,6 +15,7 @@
 package objectnode
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -323,6 +324,24 @@ func (o *ObjectNode) corsMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 		return
 	})
+}
+
+func (o *ObjectNode) authUserMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			auth := parseRequestAuthInfo(r)
+			userInfo, err := o.getUserInfoByAccessKeyV2(auth.accessKey)
+			if err != nil {
+				_ = InternalErrorCode(errors.New("user not found")).ServeResponse(w, r)
+				return
+			}
+			if !o.userPermissionStore.hasPermission(userInfo.UserID) {
+				log.LogInfof("authUserMiddleware deny user: %s  %t", userInfo.UserID, o.userPermissionStore.hasPermission(userInfo.UserID))
+				_ = AccessDenied.ServeResponse(w, r)
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
 }
 
 func isMatchAndSetupCORSHeader(cors *CORSConfiguration, writer http.ResponseWriter, request *http.Request, isPreflight bool) (match bool) {
