@@ -132,10 +132,11 @@ func (e *Expiration) validExpiration() *ErrorCode {
 		return LifeCycleErrMalformedXML
 	}
 	// Date must be midnight UTC
+	log.LogErrorf("validExpiration %+v", e.Date)
 	if e.Date != nil {
 		date := e.Date.In(time.UTC)
 		log.LogInfo(date)
-		log.LogInfof("date", date.Hour(), date.Minute(), date.Second(), date.Nanosecond())
+		log.LogInfof("date %d %d %d %d", date.Hour(), date.Minute(), date.Second(), date.Nanosecond())
 		if !(date.Hour() == 0 && date.Minute() == 0 && date.Second() == 0 && date.Nanosecond() == 0) {
 			return LifeCycleErrDateType
 		}
