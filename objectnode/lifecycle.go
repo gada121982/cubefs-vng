@@ -18,6 +18,8 @@ import (
 	"encoding/xml"
 	"net/http"
 	"time"
+
+	"github.com/cubefs/cubefs/util/log"
 )
 
 const (
@@ -132,6 +134,8 @@ func (e *Expiration) validExpiration() *ErrorCode {
 	// Date must be midnight UTC
 	if e.Date != nil {
 		date := e.Date.In(time.UTC)
+		log.LogInfo(date)
+		log.LogInfof("date", date.Hour(), date.Minute(), date.Second(), date.Nanosecond())
 		if !(date.Hour() == 0 && date.Minute() == 0 && date.Second() == 0 && date.Nanosecond() == 0) {
 			return LifeCycleErrDateType
 		}
