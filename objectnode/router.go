@@ -457,10 +457,10 @@ func (o *ObjectNode) registerApiRouters(router *mux.Router) {
 		// Put bucket lifecycle
 		// API reference: https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketLifecycle.html
 		// Notes: unsupported operation
-		// r.NewRoute().Name(ActionToUniqueRouteName(proto.OSSPutBucketLifecycleAction)).
-		//	Methods(http.MethodPut).
-		//	Queries("lifecycle", "").
-		//	HandlerFunc(o.unsupportedOperationHandler)
+		r.NewRoute().Name(ActionToUniqueRouteName(proto.OSSPutBucketLifecycleAction)).
+			Methods(http.MethodPut).
+			Queries("lifecycle", "").
+			HandlerFunc(o.putBucketLifecycleConfigurationHandler)
 
 		// Put bucket lifecycle configuration
 		// API reference: https://docs.aws.amazon.com/zh_cn/AmazonS3/latest/API/API_PutBucketLifecycleConfiguration.html
